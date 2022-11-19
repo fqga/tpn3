@@ -70,7 +70,7 @@ typedef struct digital_output_s * digital_output_t;
 
 /* === Declaraciones de funciones publicas ================================= */
 
-digital_output_t DigitalOutputCreate(uint8_t puerto, uint8_t bit);
+digital_output_t DigitalOutputCreate(uint8_t gpio, uint8_t bit);
 void DigitalOutputActivate(digital_output_t output);
 void DigitalOutputDeactivate(digital_output_t output);
 void DigitalOutputToggle(digital_output_t output);
