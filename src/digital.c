@@ -64,10 +64,11 @@ struct digital_output_s
 {
     uint8_t gpio;
     uint8_t bit;
+    bool allocated;
 };
 
 /* === Definiciones de variables privadas ================================== */
-static struct digital_output_s instance[OUTPUT_INSTANCES];
+static struct digital_output_s instance[OUTPUT_INSTANCES] = {0};
 
 /* === Definiciones de variables publicas ================================== */
 
@@ -75,17 +76,37 @@ static struct digital_output_s instance[OUTPUT_INSTANCES];
 
 /* === Definiciones de funciones privadas ================================== */
 
+
+digital_output_t DigitalOutputAllocate(void)
+{
+    digital_output_t output = NULL;
+
+    for(int index = 0; index <  OUTPUT_INSTANCES; index++){
+        if (instance[index].allocated == false){
+            instance[index].allocated = true;
+            output = &instance[index];
+            break;
+        }
+    }
+
+    return output;
+}
+
 /* === Definiciones de funciones publicas ================================== */
 
 digital_output_t DigitalOutputCreate(uint8_t gpio, uint8_t bit)
 {
-    instance->gpio = gpio;
-    instance->bit = bit;
+    digital_output_t output = DigitalOutputAllocate();
 
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio, bit, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, gpio, bit, true);
+    if (output) 
+    {
+        output->gpio = gpio;
+        output->bit = bit;
+        Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->gpio, output->bit, false);
+        Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, output->gpio, output->bit, true);
+    }
 
-    return &instance;
+    return output;
 }
 
 void DigitalOutputActivate(digital_output_t output)
@@ -100,6 +121,7 @@ void DigitalOutputDeactivate(digital_output_t output)
 
 void DigitalOutputToggle(digital_output_t output)
 {
+    Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, output->gpio, output->bit);
 
 }
 
